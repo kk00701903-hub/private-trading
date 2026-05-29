@@ -9,8 +9,7 @@ export default function PortfolioPage() {
 
   const handleSellAnalysis = async (stock: { name: string; profitRate: number; profit: number }) => {
     setAnalyzing(stock.name);
-    const apiKey = localStorage.getItem("claude_api_key") || "";
-    const res = await analyzeSellTiming(stock, apiKey);
+    const res = await analyzeSellTiming(stock);
     setResults((prev) => ({ ...prev, [stock.name]: res }));
     setAnalyzing(null);
   };

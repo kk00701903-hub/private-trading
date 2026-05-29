@@ -42,44 +42,65 @@ export interface AnalysisResult {
   error?: string;
 }
 
-export async function analyzeStock(
-  request: StockAnalysisRequest,
-  apiKey: string
-): Promise<AnalysisResult> {
-  if (!apiKey) {
-    return { verdict: "hold", content: "", error: "Claude API 키가 설정되지 않았습니다. 설정 탭에서 입력해주세요." };
+function getEdgeFunctionUrl(): string {
+  const supabaseUrl = localStorage.getItem("supabase_url") || import.meta.env.VITE_SUPABASE_URL || "";
+  if (!supabaseUrl) return "";
+  return `${supabaseUrl.replace(/\/$/, "")}/functions/v1/claude-analyze`;
+}
+
+function getAnonKey(): string {
+  return localStorage.getItem("supabase_anon_key") || import.meta.env.VITE_SUPABASE_ANON_KEY || "";
+}
+
+async function callClaude(
+  system: string,
+  userMessage: string,
+  maxTokens: number
+): Promise<{ text: string; error?: string }> {
+  const edgeUrl = getEdgeFunctionUrl();
+  const anonKey = getAnonKey();
+
+  if (!edgeUrl) {
+    return { text: "", error: "Supabase URL이 설정되지 않았습니다. 설정 탭에서 입력해주세요." };
   }
 
+  const response = await fetch(edgeUrl, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      ...(anonKey ? { apikey: anonKey, Authorization: `Bearer ${anonKey}` } : {}),
+    },
+    body: JSON.stringify({
+      model: "claude-opus-4-5",
+      max_tokens: maxTokens,
+      system,
+      messages: [{ role: "user", content: userMessage }],
+    }),
+  });
+
+  const data = await response.json() as {
+    content?: Array<{ type: string; text: string }>;
+    error?: string;
+  };
+
+  if (!response.ok) {
+    return { text: "", error: `API 오류: ${data?.error || `HTTP ${response.status}`}` };
+  }
+
+  return { text: data.content?.[0]?.text || "" };
+}
+
+export async function analyzeStock(
+  request: StockAnalysisRequest
+): Promise<AnalysisResult> {
   const userMessage = `종목명: ${request.stockName}${request.ticker ? ` (티커: ${request.ticker})` : ""}
 ${request.additionalInfo ? `\n추가 정보: ${request.additionalInfo}` : ""}
 
 위 종목에 대해 투자 규칙을 기반으로 매수/홀드/매도 분석을 해주세요.`;
 
   try {
-    const response = await fetch("https://api.anthropic.com/v1/messages", {
-      method: "POST",
-      headers: {
-        "x-api-key": apiKey,
-        "anthropic-version": "2023-06-01",
-        "anthropic-dangerous-direct-browser-access": "true",
-        "content-type": "application/json",
-      },
-      body: JSON.stringify({
-        model: "claude-opus-4-5",
-        max_tokens: 1500,
-        system: SYSTEM_PROMPT,
-        messages: [{ role: "user", content: userMessage }],
-      }),
-    });
-
-    if (!response.ok) {
-      const err = await response.json().catch(() => ({}));
-      const msg = (err as { error?: { message?: string } })?.error?.message || `HTTP ${response.status}`;
-      return { verdict: "hold", content: "", error: `API 오류: ${msg}` };
-    }
-
-    const data = await response.json() as { content: Array<{ type: string; text: string }> };
-    const text = data.content?.[0]?.text || "";
+    const { text, error } = await callClaude(SYSTEM_PROMPT, userMessage, 1500);
+    if (error) return { verdict: "hold", content: "", error };
 
     let verdict: "buy" | "hold" | "sell" = "hold";
     if (text.includes("매수 🟢") || text.includes("## 종합 판단: 매수")) verdict = "buy";
@@ -92,13 +113,8 @@ ${request.additionalInfo ? `\n추가 정보: ${request.additionalInfo}` : ""}
 }
 
 export async function analyzeSellTiming(
-  portfolioStock: { name: string; profitRate: number; profit: number },
-  apiKey: string
+  portfolioStock: { name: string; profitRate: number; profit: number }
 ): Promise<AnalysisResult> {
-  if (!apiKey) {
-    return { verdict: "hold", content: "", error: "Claude API 키가 설정되지 않았습니다." };
-  }
-
   const userMessage = `현재 보유 종목 매도 타이밍 분석을 요청합니다:
 - 종목명: ${portfolioStock.name}
 - 현재 수익률: ${portfolioStock.profitRate}%
@@ -108,28 +124,8 @@ export async function analyzeSellTiming(
 특히 "목표가 하향 시 무조건 판다" 규칙, "손절 기준" 등을 고려해주세요.`;
 
   try {
-    const response = await fetch("https://api.anthropic.com/v1/messages", {
-      method: "POST",
-      headers: {
-        "x-api-key": apiKey,
-        "anthropic-version": "2023-06-01",
-        "anthropic-dangerous-direct-browser-access": "true",
-        "content-type": "application/json",
-      },
-      body: JSON.stringify({
-        model: "claude-opus-4-5",
-        max_tokens: 1000,
-        system: SYSTEM_PROMPT,
-        messages: [{ role: "user", content: userMessage }],
-      }),
-    });
-
-    if (!response.ok) {
-      return { verdict: "hold", content: "", error: `API 오류: HTTP ${response.status}` };
-    }
-
-    const data = await response.json() as { content: Array<{ type: string; text: string }> };
-    const text = data.content?.[0]?.text || "";
+    const { text, error } = await callClaude(SYSTEM_PROMPT, userMessage, 1000);
+    if (error) return { verdict: "hold", content: "", error };
 
     let verdict: "buy" | "hold" | "sell" = "hold";
     if (text.includes("매수 🟢")) verdict = "buy";

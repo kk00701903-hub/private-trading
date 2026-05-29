@@ -18,8 +18,7 @@ export default function AnalyzePage() {
     if (!stockName.trim()) return;
     setLoading(true);
     setResult(null);
-    const apiKey = localStorage.getItem("claude_api_key") || "";
-    const res = await analyzeStock({ stockName: stockName.trim(), additionalInfo }, apiKey);
+    const res = await analyzeStock({ stockName: stockName.trim(), additionalInfo });
     setResult(res);
     setLoading(false);
   };

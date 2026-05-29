@@ -35,9 +35,9 @@ export default function SettingsPage() {
   };
 
   return (
-    <div className="flex flex-col min-h-full pb-24">
+    <div className="flex flex-col min-h-full">
       {/* Header */}
-      <div className="px-4 pt-12 pb-4" style={{ background: "linear-gradient(135deg, color-mix(in srgb, var(--primary) 20%, var(--background)) 0%, var(--background) 100%)" }}>
+      <div className="px-4 pt-safe pb-4" style={{ background: "linear-gradient(135deg, color-mix(in srgb, var(--primary) 20%, var(--background)) 0%, var(--background) 100%)" }}>
         <h1 className="text-2xl font-bold" style={{ color: "var(--foreground)" }}>설정</h1>
         <p className="text-xs mt-0.5" style={{ color: "var(--muted-foreground)" }}>AI 분석 기능 설정</p>
       </div>

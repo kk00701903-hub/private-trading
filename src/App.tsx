@@ -22,10 +22,17 @@ export default function App() {
 
   return (
     <div
-      className="min-h-screen max-w-md mx-auto relative"
-      style={{ background: "var(--background)", fontFamily: "'Noto Sans KR', sans-serif" }}
+      className="relative w-full"
+      style={{
+        background: "var(--background)",
+        fontFamily: "'Noto Sans KR', sans-serif",
+        minHeight: "100dvh",
+      }}
     >
-      <div className="overflow-y-auto" style={{ minHeight: "100vh" }}>
+      <div
+        className="overflow-y-auto"
+        style={{ minHeight: "100dvh", paddingBottom: "calc(4rem + env(safe-area-inset-bottom))" }}
+      >
         {renderPage()}
       </div>
       <BottomNav activeTab={activeTab} onTabChange={setActiveTab} />

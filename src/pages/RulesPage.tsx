@@ -25,9 +25,9 @@ export default function RulesPage() {
   }));
 
   return (
-    <div className="flex flex-col min-h-full pb-24">
+    <div className="flex flex-col min-h-full">
       {/* Header */}
-      <div className="px-4 pt-12 pb-4" style={{ background: "linear-gradient(135deg, color-mix(in srgb, var(--primary) 20%, var(--background)) 0%, var(--background) 100%)" }}>
+      <div className="px-4 pt-safe pb-4" style={{ background: "linear-gradient(135deg, color-mix(in srgb, var(--primary) 20%, var(--background)) 0%, var(--background) 100%)" }}>
         <h1 className="text-2xl font-bold" style={{ color: "var(--foreground)" }}>나의 투자 규칙</h1>
         <p className="text-xs mt-0.5" style={{ color: "var(--muted-foreground)" }}>직접 터득한 22개 원칙 · 매수·매도·종목 선정 기준</p>
       </div>

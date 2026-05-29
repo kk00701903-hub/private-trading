@@ -30,9 +30,9 @@ export default function AnalyzePage() {
   };
 
   return (
-    <div className="flex flex-col min-h-full pb-24">
+    <div className="flex flex-col min-h-full">
       {/* Header */}
-      <div className="px-4 pt-12 pb-4" style={{ background: "linear-gradient(135deg, color-mix(in srgb, var(--primary) 20%, var(--background)) 0%, var(--background) 100%)" }}>
+      <div className="px-4 pt-safe pb-4" style={{ background: "linear-gradient(135deg, color-mix(in srgb, var(--primary) 20%, var(--background)) 0%, var(--background) 100%)" }}>
         <h1 className="text-2xl font-bold" style={{ color: "var(--foreground)" }}>AI 종목 분석</h1>
         <p className="text-sm mt-1" style={{ color: "var(--muted-foreground)" }}>22개 투자 원칙 기반 매수·홀드·매도 판단</p>
       </div>

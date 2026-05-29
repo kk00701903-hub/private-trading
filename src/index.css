@@ -180,13 +180,21 @@
     @apply border-border outline-ring/50;
   }
 
-  html {
+  html, body {
     @apply scroll-smooth antialiased;
+    height: 100%;
+    overscroll-behavior-y: none;
   }
 
   body {
-    @apply bg-background text-foreground font-sans min-h-screen;
+    @apply bg-background text-foreground font-sans;
     font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+    -webkit-text-size-adjust: 100%;
+  }
+
+  #root {
+    min-height: 100dvh;
+    min-height: -webkit-fill-available;
   }
 
   h1, h2, h3, h4, h5, h6 {
@@ -202,8 +210,8 @@
   }
 
   ::-webkit-scrollbar {
-    width: 6px;
-    height: 6px;
+    width: 4px;
+    height: 4px;
   }
   ::-webkit-scrollbar-track {
     @apply bg-transparent;
@@ -211,4 +219,15 @@
   ::-webkit-scrollbar-thumb {
     @apply bg-muted-foreground/20 rounded-full hover:bg-muted-foreground/40;
   }
+}
+
+/* Safe area utilities */
+.pt-safe {
+  padding-top: calc(1.5rem + env(safe-area-inset-top, 0px));
+}
+
+/* 터치 피드백 제거 */
+button, a {
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
 }

@@ -6,6 +6,7 @@ import fs from 'node:fs/promises';
 import nodePath from 'node:path';
 import { componentTagger } from 'lovable-tagger';
 import path from "path";
+import { VitePWA } from 'vite-plugin-pwa';
 
 import { parse } from '@babel/parser';
 import _traverse from '@babel/traverse';
@@ -216,9 +217,51 @@ export default defineConfig(({ mode }) => {
     plugins: [
       tailwindcss(),
       react(),
-      mode === 'development' &&
-      componentTagger(),
+      mode === 'development' && componentTagger(),
       cdnPrefixImages(),
+      VitePWA({
+        registerType: "autoUpdate",
+        includeAssets: ["favicon.ico", "icon.svg", "apple-touch-icon-180x180.png"],
+        manifest: {
+          name: "투자 AI 어드바이저",
+          short_name: "AI 투자",
+          description: "22개 투자 원칙 기반 AI 종목 분석",
+          theme_color: "#0a0a0f",
+          background_color: "#0a0a0f",
+          display: "standalone",
+          orientation: "portrait",
+          scope: mode === "production" ? "/private-trading/" : "/",
+          start_url: mode === "production" ? "/private-trading/" : "/",
+          icons: [
+            { src: "pwa-64x64.png", sizes: "64x64", type: "image/png" },
+            { src: "pwa-192x192.png", sizes: "192x192", type: "image/png" },
+            { src: "pwa-512x512.png", sizes: "512x512", type: "image/png", purpose: "any" },
+            { src: "maskable-icon-512x512.png", sizes: "512x512", type: "image/png", purpose: "maskable" },
+          ],
+        },
+        workbox: {
+          globPatterns: ["**/*.{js,css,html,ico,png,svg,woff2}"],
+          navigateFallback: null,
+          runtimeCaching: [
+            {
+              urlPattern: /^https:\/\/ywpcbffqqbdfhmrnjyts\.supabase\.co\/functions\/v1\//,
+              handler: "NetworkFirst",
+              options: {
+                cacheName: "supabase-api",
+                expiration: { maxEntries: 20, maxAgeSeconds: 5 * 60 },
+              },
+            },
+            {
+              urlPattern: /^https:\/\/fonts\.(googleapis|gstatic)\.com\//,
+              handler: "CacheFirst",
+              options: {
+                cacheName: "google-fonts",
+                expiration: { maxEntries: 10, maxAgeSeconds: 60 * 60 * 24 * 365 },
+              },
+            },
+          ],
+        },
+      }),
     ].filter(Boolean),
     resolve: {
       alias: {

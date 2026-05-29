@@ -16,6 +16,9 @@ export default function RulesPage() {
     "매도 원칙": "#f97316",
     "종목 선정": "#8b5cf6",
     "계절 주의": "#06b6d4",
+    "장초반 법칙": "#f59e0b",
+    "매수 패턴": "#10b981",
+    "매도 패턴": "#dc2626",
     "기타": "#6b7280",
   };
 
@@ -29,16 +32,16 @@ export default function RulesPage() {
       {/* Header */}
       <div className="px-4 pt-safe pb-4" style={{ background: "linear-gradient(135deg, color-mix(in srgb, var(--primary) 20%, var(--background)) 0%, var(--background) 100%)" }}>
         <h1 className="text-2xl font-bold" style={{ color: "var(--foreground)" }}>나의 투자 규칙</h1>
-        <p className="text-xs mt-0.5" style={{ color: "var(--muted-foreground)" }}>직접 터득한 22개 원칙 · 매수·매도·종목 선정 기준</p>
+        <p className="text-xs mt-0.5" style={{ color: "var(--muted-foreground)" }}>직접 터득한 {INVESTMENT_RULES.length}개 원칙 · 장초반·매수·매도 패턴 진화판</p>
       </div>
 
       {/* Summary Cards */}
       <div className="px-4 py-3">
         <div className="grid grid-cols-3 gap-2">
           {[
-            { label: "전체", count: 22, color: "var(--primary)" },
+            { label: "전체", count: INVESTMENT_RULES.length, color: "var(--primary)" },
             { label: "매수 금지", count: INVESTMENT_RULES.filter(r => r.category === "매수 금지").length, color: "#ef4444" },
-            { label: "매도 원칙", count: INVESTMENT_RULES.filter(r => r.category === "매도 원칙").length, color: "#f97316" },
+            { label: "매도 패턴", count: INVESTMENT_RULES.filter(r => r.category === "매도 패턴").length, color: "#dc2626" },
           ].map(({ label, count, color }) => (
             <div key={label} className="rounded-xl p-3 text-center" style={{ background: "var(--card)", border: "1px solid var(--border)" }}>
               <p className="text-2xl font-bold" style={{ color }}>{count}</p>
@@ -59,7 +62,7 @@ export default function RulesPage() {
               color: activeCategory === "전체" ? "var(--primary-foreground)" : "var(--muted-foreground)",
             }}
           >
-            전체 22
+            전체 {INVESTMENT_RULES.length}
           </button>
           {catCounts.map(({ cat, count }) => (
             <button
@@ -117,7 +120,7 @@ export default function RulesPage() {
         <div className="rounded-xl p-4" style={{ background: "color-mix(in srgb, var(--primary) 8%, transparent)", border: "1px solid color-mix(in srgb, var(--primary) 20%, transparent)" }}>
           <p className="text-xs font-semibold mb-1" style={{ color: "var(--primary)" }}>💡 AI 분석 탭 활용 팁</p>
           <p className="text-xs leading-relaxed" style={{ color: "var(--muted-foreground)" }}>
-            종목을 입력하면 이 22개 규칙을 모두 체크하여 AI가 매수/홀드/매도를 판단합니다. 설정에서 Claude API 키를 입력해주세요.
+            종목을 입력하면 이 {INVESTMENT_RULES.length}개 규칙(장초반 법칙 + 차트 패턴 포함)을 모두 체크하여 AI가 매수/홀드/매도를 판단합니다. 설정에서 Claude API 키를 입력해주세요.
           </p>
         </div>
       </div>

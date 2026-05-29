@@ -1,0 +1,214 @@
+@import url("https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap");
+@import "tailwindcss";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+/*
+==========================================================================
+【AI HANDOVER NOTE】
+1. DESIGN PHILOSOPHY:
+   - Financial Data-First: 금융 데이터의 명확한 가독성과 즉각적인 정보 전달을 최우선으로 설계
+   - Mobile-Native Fintech: Toss 스타일의 모바일 최적화 인터페이스, 한 손 조작 가능한 하단 네비게이션
+   - Trust Through Clarity: 손실/수익을 숨기지 않고 명확히 표시하여 신뢰감 구축
+   - Dark-First Design: 장시간 모니터링에 적합한 다크 테마 기본, 눈의 피로 최소화
+
+2. TYPOGRAPHY:
+   - Noto Sans KR: 한글 금융 데이터 표시에 최적화된 가독성, 숫자와 한글의 균형잡힌 조화
+   - JetBrains Mono: 주가, 수익률 등 숫자 데이터의 정확한 정렬과 가독성 확보
+   - 계층적 폰트 웨이트: 총 평가액(700), 종목명(600), 보조정보(400)로 정보 우선순위 시각화
+
+3. COLOR SYSTEM:
+   - Brand Primary (Blue): 신뢰감과 안정성을 전달하는 금융 앱 표준 색상 (Hue 230-240)
+   - Semantic Colors: 손실(Destructive Red), 수익(Success Green), 경고(Warning Amber)
+   - --brand는 --primary로 매핑되어 CTA 버튼, 활성 탭, 링크에 사용
+   - --destructive는 손실 금액 표시(-15.11%)에 필수적으로 사용
+   - --success는 수익 금액 표시에 사용 (현재 포트폴리오엔 없지만 시스템 필수)
+   - Dark mode 최적화: background는 순수 검정(#000)에 가까운 oklch(0.12)로 OLED 친화적
+   - Muted tones: 보조 정보(주식 수량, 섹션 헤더)에 사용하여 주요 데이터 강조
+
+4. USAGE GUIDE:
+   - Layout: Mobile-first, 전체 너비 활용, 카드 기반 리스트 레이아웃
+   - Typography Scale: 총 평가액(text-4xl), 종목 가격(text-2xl), 손익률(text-base)
+   - Color Usage: 손실은 destructive, 수익은 success, 중립은 muted-foreground
+   - Interactive Elements: 종목 카드는 tap 가능, ring color로 포커스 표시
+   - Bottom Navigation: 고정 하단 네비게이션 바, sidebar tokens 활용
+   - Spacing: 넉넉한 패딩(p-4, p-6)으로 터치 타겟 확보, 리스트 아이템 간 명확한 구분
+   - Data Visualization: 차트는 chart_1~5 tokens 활용, 섹터별/시간별 분석
+   - Accessibility: WCAG AA 준수, 색맹 사용자를 위한 아이콘/텍스트 병기
+==========================================================================
+*/
+
+:root {
+  /* Typography */
+  --font-sans: 'Noto Sans KR', -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif;
+  --font-mono: 'JetBrains Mono', 'SF Mono', Consolas, monospace;
+  
+  /* Radius */
+  --radius: 0.75rem;
+
+  /* Core UI Tokens */
+  --background: oklch(0.98 0.005 240);
+  --foreground: oklch(0.15 0.01 240);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.15 0.01 240);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.15 0.01 240);
+  --primary: oklch(0.52 0.18 235);
+  --primary-foreground: oklch(0.98 0.005 235);
+  --secondary: oklch(0.92 0.01 240);
+  --secondary-foreground: oklch(0.2 0.01 240);
+  --muted: oklch(0.95 0.005 240);
+  --muted-foreground: oklch(0.48 0.01 240);
+  --accent: oklch(0.88 0.02 235);
+  --accent-foreground: oklch(0.2 0.01 235);
+  --destructive: oklch(0.55 0.22 25);
+  --destructive-foreground: oklch(0.98 0.005 25);
+  --border: oklch(0.88 0.01 240);
+  --input: oklch(0.88 0.01 240);
+  --ring: oklch(0.52 0.18 235);
+  
+  /* Chart Tokens */
+  --chart-1: oklch(0.58 0.18 235);
+  --chart-2: oklch(0.62 0.2 150);
+  --chart-3: oklch(0.65 0.22 45);
+  --chart-4: oklch(0.6 0.2 280);
+  --chart-5: oklch(0.55 0.18 340);
+  
+  /* Sidebar Tokens */
+  --sidebar: oklch(0.98 0.005 240);
+  --sidebar-foreground: oklch(0.2 0.01 240);
+  --sidebar-primary: oklch(0.52 0.18 235);
+  --sidebar-primary-foreground: oklch(0.98 0.005 235);
+  --sidebar-accent: oklch(0.88 0.02 235);
+  --sidebar-accent-foreground: oklch(0.2 0.01 235);
+  --sidebar-border: oklch(0.88 0.01 240);
+  --sidebar-ring: oklch(0.52 0.18 235);
+}
+
+.dark {
+  --background: oklch(0.12 0.01 240);
+  --foreground: oklch(0.92 0.005 240);
+  --card: oklch(0.16 0.01 240);
+  --card-foreground: oklch(0.92 0.005 240);
+  --popover: oklch(0.14 0.01 240);
+  --popover-foreground: oklch(0.92 0.005 240);
+  --primary: oklch(0.62 0.2 235);
+  --primary-foreground: oklch(0.12 0.01 235);
+  --secondary: oklch(0.22 0.02 240);
+  --secondary-foreground: oklch(0.88 0.005 240);
+  --muted: oklch(0.2 0.01 240);
+  --muted-foreground: oklch(0.58 0.01 240);
+  --accent: oklch(0.28 0.03 235);
+  --accent-foreground: oklch(0.92 0.005 235);
+  --destructive: oklch(0.58 0.24 25);
+  --destructive-foreground: oklch(0.95 0.005 25);
+  --border: oklch(0.25 0.02 240);
+  --input: oklch(0.25 0.02 240);
+  --ring: oklch(0.62 0.2 235);
+  
+  /* Chart Tokens */
+  --chart-1: oklch(0.65 0.2 235);
+  --chart-2: oklch(0.68 0.22 150);
+  --chart-3: oklch(0.7 0.24 45);
+  --chart-4: oklch(0.66 0.22 280);
+  --chart-5: oklch(0.62 0.2 340);
+  
+  /* Sidebar Tokens */
+  --sidebar: oklch(0.14 0.01 240);
+  --sidebar-foreground: oklch(0.88 0.005 240);
+  --sidebar-primary: oklch(0.62 0.2 235);
+  --sidebar-primary-foreground: oklch(0.12 0.01 235);
+  --sidebar-accent: oklch(0.28 0.03 235);
+  --sidebar-accent-foreground: oklch(0.92 0.005 235);
+  --sidebar-border: oklch(0.25 0.02 240);
+  --sidebar-ring: oklch(0.62 0.2 235);
+}
+
+@theme inline {
+  /* Shadcn Core Mapping */
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
+  /* Charts Mapping */
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+
+  /* Sidebar Mapping */
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+
+  /* Typography */
+  --font-sans: var(--font-sans);
+  --font-mono: var(--font-mono);
+
+  /* Radius */
+  --radius-lg: var(--radius);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-xl: calc(var(--radius) + 4px);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+
+  html {
+    @apply scroll-smooth antialiased;
+  }
+
+  body {
+    @apply bg-background text-foreground font-sans min-h-screen;
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-semibold tracking-tight;
+  }
+
+  code, pre {
+    @apply font-mono;
+  }
+
+  ::selection {
+    @apply bg-primary/20 text-primary;
+  }
+
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  ::-webkit-scrollbar-track {
+    @apply bg-transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    @apply bg-muted-foreground/20 rounded-full hover:bg-muted-foreground/40;
+  }
+}

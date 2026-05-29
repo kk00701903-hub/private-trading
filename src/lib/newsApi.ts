@@ -41,7 +41,7 @@ export async function fetchNews(): Promise<NewsItem[]> {
     return MOCK_NEWS as NewsItem[];
   }
 
-  const edgeUrl = `${supabaseUrl.replace(/\/$/, "")}/functions/v1/naver-news`;
+  const edgeUrl = `${supabaseUrl.replace(/\/$/,  "")}/functions/v1/naver-news`;
 
   const res = await fetch(edgeUrl, {
     method: "POST",

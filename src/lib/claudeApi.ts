@@ -67,6 +67,32 @@ function getAnonKey(): string {
   return localStorage.getItem("supabase_anon_key") || import.meta.env.VITE_SUPABASE_ANON_KEY || "";
 }
 
+
+async function fetchStockInfo(
+  stockName: string,
+  ticker?: string
+): Promise<string> {
+  const supabaseUrl = localStorage.getItem("supabase_url") || import.meta.env.VITE_SUPABASE_URL || "";
+  const anonKey = localStorage.getItem("supabase_anon_key") || import.meta.env.VITE_SUPABASE_ANON_KEY || "";
+  if (!supabaseUrl) return "";
+  const url = `${supabaseUrl.replace(/\/$/, "")}/functions/v1/stock-info`;
+  try {
+    const res = await fetch(url, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        ...(anonKey ? { apikey: anonKey, Authorization: `Bearer ${anonKey}` } : {}),
+      },
+      body: JSON.stringify({ stockName, ticker }),
+    });
+    if (!res.ok) return "";
+    const data: { context?: string; hasRealData?: boolean } = await res.json();
+    return data.context ?? "";
+  } catch {
+    return "";
+  }
+}
+
 async function callClaude(
   system: string,
   userMessage: string,
@@ -108,13 +134,28 @@ async function callClaude(
 export async function analyzeStock(
   request: StockAnalysisRequest
 ): Promise<AnalysisResult> {
-  const userMessage = `종목명: ${request.stockName}${request.ticker ? ` (티커: ${request.ticker})` : ""}
-${request.additionalInfo ? `\n추가 정보: ${request.additionalInfo}` : ""}
+  const today = getTodayString();
+  const systemPrompt = buildSystemPrompt(today);
 
-위 종목에 대해 투자 규칙을 기반으로 매수/홀드/매도 분석을 해주세요.`;
+  // Fetch real-time stock data from Naver Finance via Edge Function
+  const realtimeContext = await fetchStockInfo(request.stockName, request.ticker);
+
+  const realtimeSection = realtimeContext
+    ? `[실시간 시장 데이터 - 네이버 금융]\n${realtimeContext}`
+    : `[실시간 데이터 불가 - AI 학습 데이터 기반 분석]`;
+
+  const userMessage = `[분석 요청일: ${today}]
+
+종목명: ${request.stockName}${request.ticker ? ` (티커: ${request.ticker})` : ""}
+
+${realtimeSection}
+${request.additionalInfo ? `\n[사용자 추가 정보]\n${request.additionalInfo}` : ""}
+
+위 종목에 대해 투자 원칙 42개 전체를 기반으로 매수/홀드/매도 분석을 해주세요.
+실시간 데이터가 있다면 반드시 이를 중심으로 분석하고, 부족한 부분은 학습 데이터로 보완하세요.`;
 
   try {
-    const { text, error } = await callClaude(SYSTEM_PROMPT, userMessage, 1500);
+    const { text, error } = await callClaude(systemPrompt, userMessage, 1500);
     if (error) return { verdict: "hold", content: "", error };
 
     let verdict: "buy" | "hold" | "sell" = "hold";

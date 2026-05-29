@@ -12,15 +12,20 @@ export default function AnalyzePage() {
   const [additionalInfo, setAdditionalInfo] = useState("");
   const [showExtra, setShowExtra] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [loadingStep, setLoadingStep] = useState<"data" | "ai" | null>(null);
   const [result, setResult] = useState<AnalysisResult | null>(null);
 
   const handleAnalyze = async () => {
     if (!stockName.trim()) return;
     setLoading(true);
+    setLoadingStep("data");
     setResult(null);
+    await new Promise((r) => setTimeout(r, 500));
+    setLoadingStep("ai");
     const res = await analyzeStock({ stockName: stockName.trim(), additionalInfo });
     setResult(res);
     setLoading(false);
+    setLoadingStep(null);
   };
 
   const verdictConfig = {
@@ -34,7 +39,7 @@ export default function AnalyzePage() {
       {/* Header */}
       <div className="px-4 pt-safe pb-4" style={{ background: "linear-gradient(135deg, color-mix(in srgb, var(--primary) 20%, var(--background)) 0%, var(--background) 100%)" }}>
         <h1 className="text-2xl font-bold" style={{ color: "var(--foreground)" }}>AI 종목 분석</h1>
-        <p className="text-sm mt-1" style={{ color: "var(--muted-foreground)" }}>22개 투자 원칙 기반 매수·홀드·매도 판단</p>
+        <p className="text-sm mt-1" style={{ color: "var(--muted-foreground)" }}>실시간 주가 + 최신 뉴스 수집 → 42개 투자 원칙 AI 분석</p>
       </div>
 
       <div className="px-4 space-y-4">
@@ -106,10 +111,47 @@ export default function AnalyzePage() {
 
         {/* Loading */}
         {loading && (
-          <div className="rounded-2xl p-8 flex flex-col items-center gap-3" style={{ background: "var(--card)", border: "1px solid var(--border)" }}>
+          <div className="rounded-2xl p-6 flex flex-col items-center gap-4" style={{ background: "var(--card)", border: "1px solid var(--border)" }}>
             <Loader2 size={32} className="animate-spin" style={{ color: "var(--primary)" }} />
-            <p className="text-sm font-medium" style={{ color: "var(--foreground)" }}>AI가 22개 투자 원칙을 적용하여 분석 중...</p>
-            <p className="text-xs" style={{ color: "var(--muted-foreground)" }}>약 10~20초 소요됩니다</p>
+            <div className="w-full space-y-3">
+              {/* Step 1 */}
+              <div className="flex items-center gap-3">
+                <div
+                  className="w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0"
+                  style={{
+                    background: loadingStep === "ai" ? "#22c55e" : loadingStep === "data" ? "var(--primary)" : "var(--muted)",
+                    color: loadingStep === "data" || loadingStep === "ai" ? "var(--primary-foreground)" : "var(--muted-foreground)",
+                  }}
+                >
+                  {loadingStep === "ai" ? "✓" : "1"}
+                </div>
+                <div>
+                  <p className="text-sm font-medium" style={{ color: loadingStep === "data" ? "var(--foreground)" : "var(--muted-foreground)" }}>
+                    📊 네이버 금융 실시간 주가 · 뉴스 수집
+                  </p>
+                  <p className="text-xs" style={{ color: "var(--muted-foreground)" }}>현재가, PER, 52주 고저, 최신 뉴스</p>
+                </div>
+              </div>
+              {/* Step 2 */}
+              <div className="flex items-center gap-3">
+                <div
+                  className="w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0"
+                  style={{
+                    background: loadingStep === "ai" ? "var(--primary)" : "var(--muted)",
+                    color: loadingStep === "ai" ? "var(--primary-foreground)" : "var(--muted-foreground)",
+                  }}
+                >
+                  2
+                </div>
+                <div>
+                  <p className="text-sm font-medium" style={{ color: loadingStep === "ai" ? "var(--foreground)" : "var(--muted-foreground)" }}>
+                    🤖 Claude AI — 42개 투자 원칙 적용 분석
+                  </p>
+                  <p className="text-xs" style={{ color: "var(--muted-foreground)" }}>실시간 데이터 기반 매수 · 홀드 · 매도 판단</p>
+                </div>
+              </div>
+            </div>
+            <p className="text-xs" style={{ color: "var(--muted-foreground)" }}>약 15~25초 소요됩니다</p>
           </div>
         )}
 
@@ -154,7 +196,7 @@ export default function AnalyzePage() {
             </div>
             <p className="font-semibold" style={{ color: "var(--foreground)" }}>종목을 입력하고 분석을 시작하세요</p>
             <p className="text-xs" style={{ color: "var(--muted-foreground)" }}>
-              사용자가 직접 터득한 22개의 투자 원칙을 기반으로<br />Claude AI가 매수/홀드/매도를 판단합니다
+              네이버 금융 실시간 주가 + 최신 뉴스를 수집하여<br />42개 투자 원칙 기반으로 Claude AI가 분석합니다
             </p>
           </div>
         )}

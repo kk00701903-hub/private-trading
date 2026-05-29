@@ -1,369 +1,175 @@
 import { writeFileSync } from "fs";
 
-// newsApi.ts — Korean strings as Unicode escapes to avoid encoding issues
-const newsApiContent = `import { MOCK_NEWS } from "./constants";
+const claudeApiContent = `import { INVESTMENT_RULES } from "./constants";
 
-export interface NewsItem {
-  id: number;
-  title: string;
-  source: string;
-  time: string;
-  link?: string;
-  category: string;
-  sentiment: "positive" | "negative" | "neutral";
-  relatedStocks: string[];
+function buildSystemPrompt(today: string): string {
+  return \`\uB2F9\uC2E0\uC740 \uD55C\uAD6D \uC8FC\uC2DD \uD22C\uC790 \uC804\uBB38 AI \uC5B4\uB4DC\uBC14\uC774\uC800\uC785\uB2C8\uB2E4.
+
+\u{1F4C5} \uC624\uB298 \uB0A0\uC9DC: \${today}
+\uC704 \uB0A0\uC9DC\uB97C \uAE30\uC900\uC73C\uB85C \uBD84\uC11D\uD558\uC138\uC694. \uD559\uC2B5 \uB370\uC774\uD130 \uCEAT\uC624\uD504\uAC00 \uC788\uC5B4 \uCD5C\uADFC \uC0C8\uBCBD\uAE4C\uC9C0\uC758 \uC815\uBCF4\uAC00 \uC5C6\uC744 \uC218 \uC788\uC73C\uBBF8\uB85C, \uBD84\uC11D \uC2DC \uB2E4\uC74C\uC744 \uBC18\uB4DC\uC2DC \uba85\uC2DC\uD558\uC138\uC694:
+- \uBD84\uC11D \uADFC\uAC70\uAC00 \uB41C \uAC00\uC7A5 \uCD5C\uC2E0 \uC815\uBCF4\uC758 \uC2DC\uC810\uC744 \uBA85\uD655\uD788 \uD45C\uAE30
+- \"\uC624\uB298\uB0A0\uC9DC \uAE30\uC900\uC73C\uB85C\uB294 \uCD94\uAC00 \uD655\uC778\uC774 \uD544\uC694\uD569\uB2C8\uB2E4\" \uC548\uB0B4 \uD3EC\uD568
+- \uD604\uC7AC \uC8FC\uAC00\uB97C \uC9C1\uC811 \uC81C\uC2DC\uD558\uC9C0 \uC54A\uACE0 \uD22C\uC790\uC790\uAC00 \uD655\uC778\uD558\uB3C4\uB85D \uC548\uB0B4
+
+\uB2E4\uC74C\uC740 \uC0AC\uC6A9\uC790\uAC00 \uC9C1\uC811 \uD130\uB4DD\uD55C 22\uAC1C\uC758 \uD22C\uC790 \uC6D0\uCE59\uC785\uB2C8\uB2E4. \uC774 \uADDC\uCE59\uC744 \uCCA0\uC800\uD788 \uC801\uC6A9\uD558\uC5EC \uBD84\uC11D\uD574\uC8FC\uC138\uC694:
+
+\${INVESTMENT_RULES.map((r, i) => \`\${i + 1}. [\${r.category}] \${r.rule} - \${r.detail}\`).join("\\n")}
+
+\uBD84\uC11D \uC2DC \uBC18\uB4DC\uC2DC:
+1. \uC704 \uD22C\uC790 \uADDC\uCE59 \uC911 \uD574\uB2F9 \uC885\uBAA9\uC5D0 \uC801\uC6A9 \uAC00\uB2A5\uD55C \uADDC\uCE59\uC744 \uBA85\uC2DC\uD558\uACE0 \uC810\uAC80
+2. \uD604\uC7AC \uC2DC\uC7A5 \uC0C1\uD669\uACFC \uC885\uBAA9 \uC0C1\uD0DC\uB97C \uC885\uD569\uD558\uC5EC \uD310\uB2E8
+3. \uB9E4\uC218 / \uD640\uB4DC / \uB9E4\uB3C4 \uC911 \uD558\uB098\uB97C \uBA85\uD655\uD788 \uAD8C\uACE0
+4. \uADFC\uAC70\uB97C \uD22C\uC790 \uADDC\uCE59 \uBC88\uD638\uC640 \uD568\uAED8 \uC81C\uC2DC
+5. \uC8FC\uC758\uC0AC\uD56D \uBC0F \uB9AC\uC2A4\uD06C \uC694\uC778 \uBA85\uC2DC
+
+\uC751\uB2F5 \uD615\uC2DD:
+## \uC885\uD569 \uD310\uB2E8: [\uB9E4\uC218 \uD83D\uDFE2 / \uD640\uB4DC \uD83D\uDFE1 / \uB9E4\uB3C4 \uD83D\uDD34]
+
+## \uAE0D\uC815 \uC694\uC778
+- (\uD22C\uC790 \uADDC\uCE59 \uBC88\uD638\uC640 \uD568\uAED8)
+
+## \uBD80\uC815 \uC694\uC778 / \uC8FC\uC758\uC0AC\uD56D
+- (\uD22C\uC790 \uADDC\uCE59 \uBC88\uD638\uC640 \uD568\uAED8)
+
+## \uC801\uC6A9 \uD22C\uC790 \uADDC\uCE59 \uCCB4\uD06C\uB9AC\uC2A4\uD2B8
+- \u2705 \uCDA9\uC871: ...
+- \u274C \uBBF8\uCDA9\uC871: ...
+
+## \uD22C\uC790 \uC804\uB7B5 \uC81C\uC548
+(\uAD6C\uCCB4\uC801\uC778 \uD589\uB3D9 \uACC4\uD68D)
+
+*\uC774 \uBD84\uC11D\uC740 \uD22C\uC790 \uCC38\uACE0\uC6A9\uC774\uBA70 \uCD5C\uC885 \uACB0\uC815\uC740 \uD22C\uC790\uC790 \uBCF8\uC778\uC5D0\uAC8C \uC788\uC2B5\uB2C8\uB2E4.\`;
 }
 
-// Portfolio stocks + market keywords sent to the edge function
-const NEWS_QUERIES = [
-  "NICE\uD3C9\uAC00\uC815\uBCF4",
-  "SK\uBC14\uC774\uC624\uC0AC\uC774\uC5B8\uC2A4",
-  "\uD55C\uC194\uB85C\uC9C0\uC2A4\uD2F1\uC2A4",
-  "\uD30C\uC6CC\uB85C\uC9C1\uC2A4",
-  "\uC544\uC774\uC2A4\uD06C\uB9BC\uBBF8\uB514\uC5B4",
-  "\uB300\uB3D9 \uB18D\uAE30\uACC4",
-  "\uCF54\uC2A4\uD53C",
-  "\uCF54\uC2A4\uB2E5",
-  "2\uCC28\uC804\uC9C0",
-  "\uBC18\uB3C4\uCCB4",
-];
+export interface StockAnalysisRequest {
+  stockName: string;
+  ticker?: string;
+  additionalInfo?: string;
+}
 
-function getSupabaseUrl(): string {
-  return localStorage.getItem("supabase_url") || import.meta.env.VITE_SUPABASE_URL || "";
+export interface AnalysisResult {
+  verdict: "buy" | "hold" | "sell";
+  content: string;
+  error?: string;
+}
+
+function getEdgeFunctionUrl(): string {
+  const supabaseUrl = localStorage.getItem("supabase_url") || import.meta.env.VITE_SUPABASE_URL || "";
+  if (!supabaseUrl) return "";
+  return \`\${supabaseUrl.replace(/\\/\\$/, "")}/functions/v1/claude-analyze\`;
 }
 
 function getAnonKey(): string {
   return localStorage.getItem("supabase_anon_key") || import.meta.env.VITE_SUPABASE_ANON_KEY || "";
 }
 
-export async function fetchNews(): Promise<NewsItem[]> {
-  const supabaseUrl = getSupabaseUrl();
+function getTodayString(): string {
+  return new Date().toLocaleDateString("ko-KR", {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+    weekday: "long",
+  });
+}
+
+async function callClaude(
+  system: string,
+  userMessage: string,
+  maxTokens: number
+): Promise<{ text: string; error?: string }> {
+  const edgeUrl = getEdgeFunctionUrl();
   const anonKey = getAnonKey();
 
-  if (!supabaseUrl || !anonKey) {
-    return MOCK_NEWS as NewsItem[];
+  if (!edgeUrl) {
+    return { text: "", error: "Supabase URL\uC774 \uC124\uC815\uB418\uC9C0 \uC54A\uC558\uC2B5\uB2C8\uB2E4. \uC124\uC815 \uD0ED\uC5D0\uC11C \uC785\uB825\uD574\uC8FC\uC138\uC694." };
   }
 
-  const edgeUrl = \`\${supabaseUrl.replace(/\\/$/,  "")}/functions/v1/naver-news\`;
-
-  const res = await fetch(edgeUrl, {
+  const response = await fetch(edgeUrl, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      apikey: anonKey,
-      Authorization: \`Bearer \${anonKey}\`,
+      ...(anonKey ? { apikey: anonKey, Authorization: \`Bearer \${anonKey}\` } : {}),
     },
-    body: JSON.stringify({ queries: NEWS_QUERIES }),
+    body: JSON.stringify({
+      model: "claude-opus-4-5",
+      max_tokens: maxTokens,
+      system,
+      messages: [{ role: "user", content: userMessage }],
+    }),
   });
 
-  if (!res.ok) {
-    throw new Error(\`\uB274\uC2A4 API \uC624\uB958: HTTP \${res.status}\`);
+  const data = await response.json() as {
+    content?: Array<{ type: string; text: string }>;
+    error?: string;
+  };
+
+  if (!response.ok) {
+    return { text: "", error: \`API \uC624\uB958: \${data?.error || \`HTTP \${response.status}\`}\` };
   }
 
-  const data: { items?: NewsItem[]; error?: string } = await res.json();
+  return { text: data.content?.[0]?.text || "" };
+}
 
-  if (data.error) {
-    throw new Error(data.error);
+export async function analyzeStock(
+  request: StockAnalysisRequest
+): Promise<AnalysisResult> {
+  const today = getTodayString();
+  const systemPrompt = buildSystemPrompt(today);
+
+  const userMessage = \`[\uBD84\uC11D \uC694\uCCAD\uC77C: \${today}]
+
+\uC885\uBAA9\uBA85: \${request.stockName}\${request.ticker ? \` (\uD2F0\uCF74: \${request.ticker})\` : ""}
+\${request.additionalInfo ? \`\uCD94\uAC00 \uC815\uBCF4 / \uC2DC\uC7A5 \uD604\uD669: \${request.additionalInfo}\` : ""}
+
+\uC704 \uC885\uBAA9\uC5D0 \uB300\uD574 \uD22C\uC790 \uADDC\uCE59\uC744 \uAE30\uBC18\uC73C\uB85C \uB9E4\uC218/\uD640\uB4DC/\uB9E4\uB3C4 \uBD84\uC11D\uC744 \uD574\uC8FC\uC138\uC694.
+\uD559\uC2B5 \uB370\uC774\uD130\uC5D0 \uC5C6\uB294 \uCD5C\uADFC \uC815\uBCF4\uB294 \"\uD22C\uC790\uC790\uAC00 \uD655\uC778 \uD544\uC694\" \uD45C\uC2DC \uD6C4 \uBD84\uC11D\uC5D0 \uBC18\uC601\uD574\uC8FC\uC138\uC694.\`;
+
+  try {
+    const { text, error } = await callClaude(systemPrompt, userMessage, 1500);
+    if (error) return { verdict: "hold", content: "", error };
+
+    let verdict: "buy" | "hold" | "sell" = "hold";
+    if (text.includes("\uB9E4\uC218 \uD83D\uDFE2") || text.includes("## \uC885\uD569 \uD310\uB2E8: \uB9E4\uC218")) verdict = "buy";
+    else if (text.includes("\uB9E4\uB3C4 \uD83D\uDD34") || text.includes("## \uC885\uD569 \uD310\uB2E8: \uB9E4\uB3C4")) verdict = "sell";
+
+    return { verdict, content: text };
+  } catch (e) {
+    return { verdict: "hold", content: "", error: \`\uB124\uD2B8\uC6CC\uD06C \uC624\uB958: \${String(e)}\` };
   }
+}
 
-  const items = data.items ?? [];
-  return items.length > 0 ? items : (MOCK_NEWS as NewsItem[]);
+export async function analyzeSellTiming(
+  portfolioStock: { name: string; profitRate: number; profit: number }
+): Promise<AnalysisResult> {
+  const today = getTodayString();
+  const systemPrompt = buildSystemPrompt(today);
+
+  const userMessage = \`[\uBD84\uC11D \uC694\uCCAD\uC77C: \${today}]
+
+\uD604\uC7AC \uBCF4\uC720 \uC885\uBAA9 \uB9E4\uB3C4 \uD0C0\uC774\uBC0D \uBD84\uC11D\uC744 \uC694\uCCAD\uD569\uB2C8\uB2E4:
+- \uC885\uBAA9\uBA85: \${portfolioStock.name}
+- \uD604\uC7AC \uC218\uC775\uB960: \${portfolioStock.profitRate}%
+- \uD3C9\uAC00\uC190\uC775: \${portfolioStock.profit.toLocaleString()}\uC6D0
+
+\uC774 \uC885\uBAA9\uC758 \uD604\uC7AC \uBCF4\uC720 \uC0C1\uD0DC\uC5D0\uC11C \uB9E4\uB3C4\uD574\uC57C \uD560\uC9C0, \uD640\uB4DC\uD574\uC57C \uD560\uC9C0 \uD22C\uC790 \uADDC\uCE59 \uAE30\uBC18\uC73C\uB85C \uBD84\uC11D\uD574\uC8FC\uC138\uC694.
+\uD2B9\uD788 \"\uBAA9\uD45C\uAC00 \uD558\uD5A5 \uC2DC \uBB34\uC870\uAC74 \uD310\uB2E4\" \uADDC\uCE59, \"\uC190\uC808 \uAE30\uC900\" \uB4F1\uC744 \uACE0\uB824\uD574\uC8FC\uC138\uC694.
+\uD559\uC2B5 \uB370\uC774\uD130 \uCEAT\uC624\uD504 \uC774\uD6C4 \uCD5C\uC2E0 \uC815\uBCF4\uB294 \"\uD22C\uC790\uC790\uAC00 \uD655\uC778 \uD544\uC694\" \uD45C\uC2DC \uD6C4 \uBD84\uC11D\uC5D0 \uBC18\uC601\uD574\uC8FC\uC138\uC694.\`;
+
+  try {
+    const { text, error } = await callClaude(systemPrompt, userMessage, 1000);
+    if (error) return { verdict: "hold", content: "", error };
+
+    let verdict: "buy" | "hold" | "sell" = "hold";
+    if (text.includes("\uB9E4\uC218 \uD83D\uDFE2")) verdict = "buy";
+    else if (text.includes("\uB9E4\uB3C4 \uD83D\uDD34")) verdict = "sell";
+
+    return { verdict, content: text };
+  } catch (e) {
+    return { verdict: "hold", content: "", error: \`\uC624\uB958: \${String(e)}\` };
+  }
 }
 `;
 
-// NewsPage.tsx — all Korean strings as Unicode escapes
-const newsPageContent = `import { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
-import { TrendingUp, TrendingDown, Minus, RefreshCw, ExternalLink, Wifi, WifiOff } from "lucide-react";
-import { fetchNews, type NewsItem } from "@/lib/newsApi";
-import { MOCK_NEWS, TARGET_PRICE_UPDATES } from "@/lib/constants";
-
-const CATEGORIES = [
-  "\uC804\uCCB4",
-  "\uC2DC\uC7A5",
-  "\uBAA9\uD45C\uAC00",
-  "\uBC14\uC774\uC624",
-  "\uBB3C\uB958",
-  "2\uCC28\uC804\uC9C0",
-  "\uC5D0\uB4C0\uD14C\uD06C",
-  "\uB18D\uAE30\uACC4",
-  "\uAE00\uB85C\uBC8C",
-];
-
-const sentimentIcon = {
-  positive: <TrendingUp size={14} color="#22c55e" />,
-  negative: <TrendingDown size={14} color="#ef4444" />,
-  neutral: <Minus size={14} color="#eab308" />,
-};
-const sentimentBg = {
-  positive: "rgba(34,197,94,0.1)",
-  negative: "rgba(239,68,68,0.1)",
-  neutral: "rgba(234,179,8,0.1)",
-};
-const sentimentBorder = {
-  positive: "rgba(34,197,94,0.3)",
-  negative: "rgba(239,68,68,0.3)",
-  neutral: "rgba(234,179,8,0.3)",
-};
-
-function NewsCardSkeleton() {
-  return (
-    <div className="rounded-2xl p-4 animate-pulse" style={{ background: "var(--card)", border: "1px solid var(--border)" }}>
-      <div className="flex items-start gap-3">
-        <div className="flex-1 space-y-2">
-          <div className="flex items-center gap-2">
-            <div className="h-5 w-16 rounded-full" style={{ background: "var(--muted)" }} />
-            <div className="h-4 w-12 rounded" style={{ background: "var(--muted)" }} />
-          </div>
-          <div className="h-4 w-full rounded" style={{ background: "var(--muted)" }} />
-          <div className="h-4 w-3/4 rounded" style={{ background: "var(--muted)" }} />
-          <div className="flex justify-between pt-1">
-            <div className="h-3 w-16 rounded" style={{ background: "var(--muted)" }} />
-            <div className="h-5 w-20 rounded-full" style={{ background: "var(--muted)" }} />
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function NewsCard({ news }: { news: NewsItem }) {
-  const s = news.sentiment as keyof typeof sentimentIcon;
-  const content = (
-    <div
-      className="rounded-2xl p-4 transition-all duration-150 active:scale-[0.98]"
-      style={{ background: "var(--card)", border: "1px solid var(--border)" }}
-    >
-      <div className="flex items-start gap-3">
-        <div className="flex-1">
-          <div className="flex items-center gap-2 mb-1.5">
-            <span
-              className="text-xs px-2 py-0.5 rounded-full font-medium"
-              style={{ background: sentimentBg[s], border: \`1px solid \${sentimentBorder[s]}\` }}
-            >
-              <span className="flex items-center gap-1">
-                {sentimentIcon[s]}
-                <span style={{ color: s === "positive" ? "#22c55e" : s === "negative" ? "#ef4444" : "#eab308" }}>
-                  {news.category}
-                </span>
-              </span>
-            </span>
-            <span className="text-xs" style={{ color: "var(--muted-foreground)" }}>{news.time}</span>
-          </div>
-          <p className="text-sm font-semibold leading-snug" style={{ color: "var(--foreground)" }}>{news.title}</p>
-          <div className="flex items-center justify-between mt-2">
-            <span className="text-xs" style={{ color: "var(--muted-foreground)" }}>{news.source}</span>
-            {news.relatedStocks.length > 0 && (
-              <div className="flex gap-1">
-                {news.relatedStocks.slice(0, 2).map((st) => (
-                  <span
-                    key={st}
-                    className="text-xs px-2 py-0.5 rounded-full"
-                    style={{ background: "color-mix(in srgb, var(--primary) 12%, transparent)", color: "var(--primary)" }}
-                  >
-                    {st}
-                  </span>
-                ))}
-              </div>
-            )}
-          </div>
-        </div>
-        <ExternalLink size={14} style={{ color: "var(--muted-foreground)", marginTop: 2, flexShrink: 0 }} />
-      </div>
-    </div>
-  );
-
-  if (news.link) {
-    return (
-      <a href={news.link} target="_blank" rel="noopener noreferrer" className="block no-underline">
-        {content}
-      </a>
-    );
-  }
-  return content;
-}
-
-export default function NewsPage() {
-  const [activeCategory, setActiveCategory] = useState("\uC804\uCCB4");
-  const [activeTab, setActiveTab] = useState<"news" | "target">("news");
-
-  const { data: news, isLoading, isError, refetch, isFetching, dataUpdatedAt } = useQuery({
-    queryKey: ["news"],
-    queryFn: fetchNews,
-  });
-
-  const displayNews: NewsItem[] = news ?? (MOCK_NEWS as NewsItem[]);
-  const isLive = !!news && !isError;
-
-  const filteredNews = activeCategory === "\uC804\uCCB4"
-    ? displayNews
-    : displayNews.filter((n) => n.category === activeCategory);
-
-  const lastUpdated = dataUpdatedAt
-    ? new Date(dataUpdatedAt).toLocaleTimeString("ko-KR", { hour: "2-digit", minute: "2-digit" })
-    : null;
-
-  return (
-    <div className="flex flex-col min-h-full">
-      {/* Header */}
-      <div
-        className="px-4 pt-safe pb-3"
-        style={{ background: "linear-gradient(135deg, color-mix(in srgb, var(--primary) 20%, var(--background)) 0%, var(--background) 100%)" }}
-      >
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-2xl font-bold" style={{ color: "var(--foreground)" }}>\uC2DC\uC7A5 \uB274\uC2A4</h1>
-            <div className="flex items-center gap-1.5 mt-0.5">
-              {isLive ? (
-                <Wifi size={11} color="#22c55e" />
-              ) : (
-                <WifiOff size={11} color="#eab308" />
-              )}
-              <p className="text-xs" style={{ color: "var(--muted-foreground)" }}>
-                {isLive
-                  ? \`\uB124\uC774\uBC84 \uB274\uC2A4 \u00B7 \${lastUpdated ?? "\uC5C5\uB370\uC774\uD2B8 \uC911"}\${isFetching ? " \u21BB" : ""}\`
-                  : "\uC624\uD504\uB77C\uC778 \u00B7 \uCE90\uC2DC \uB370\uC774\uD130"}
-              </p>
-            </div>
-          </div>
-          <button
-            className="p-2 rounded-xl transition-transform active:scale-90"
-            style={{ background: "var(--muted)" }}
-            onClick={() => refetch()}
-            disabled={isFetching}
-          >
-            <RefreshCw
-              size={16}
-              style={{
-                color: "var(--muted-foreground)",
-                animation: isFetching ? "spin 1s linear infinite" : "none",
-              }}
-            />
-          </button>
-        </div>
-
-        {/* Tabs */}
-        <div className="flex gap-2 mt-3">
-          {[
-            { id: "news", label: "\uD83D\uDCF0 \uC2E4\uC2DC\uAC04 \uB274\uC2A4" },
-            { id: "target", label: "\uD83C\uDFAF \uBAA9\uD45C\uAC00 \uBCC0\uACBD" },
-          ].map(({ id, label }) => (
-            <button
-              key={id}
-              onClick={() => setActiveTab(id as "news" | "target")}
-              className="px-4 py-2 rounded-xl text-sm font-semibold transition-all duration-200"
-              style={{
-                background: activeTab === id ? "var(--primary)" : "var(--muted)",
-                color: activeTab === id ? "var(--primary-foreground)" : "var(--muted-foreground)",
-              }}
-            >
-              {label}
-            </button>
-          ))}
-        </div>
-      </div>
-
-      {activeTab === "news" ? (
-        <div className="flex flex-col">
-          {/* Error banner */}
-          {isError && (
-            <div className="mx-4 mt-3 rounded-xl px-4 py-2.5" style={{ background: "rgba(234,179,8,0.1)", border: "1px solid rgba(234,179,8,0.25)" }}>
-              <p className="text-xs" style={{ color: "#ca8a04" }}>
-                \u26A0\uFE0F \uB274\uC2A4 API \uC5F0\uACB0 \uC2E4\uD328 \u2014 \uCE90\uC2DC \uB370\uC774\uD130\uB97C \uD45C\uC2DC\uD569\uB2C8\uB2E4. (\uB124\uC774\uBC84 API \uD0A4 \uBBF8\uC124\uC815 \uC2DC \uC815\uC0C1)
-              </p>
-            </div>
-          )}
-
-          {/* Category Filter */}
-          <div className="px-4 py-2">
-            <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide">
-              {CATEGORIES.map((cat) => (
-                <button
-                  key={cat}
-                  onClick={() => setActiveCategory(cat)}
-                  className="flex-shrink-0 px-3 py-1.5 rounded-full text-xs font-medium transition-all duration-150"
-                  style={{
-                    background: activeCategory === cat ? "var(--primary)" : "var(--muted)",
-                    color: activeCategory === cat ? "var(--primary-foreground)" : "var(--muted-foreground)",
-                  }}
-                >
-                  {cat}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* News List */}
-          <div className="px-4 space-y-3 mt-1">
-            {isLoading
-              ? Array.from({ length: 4 }).map((_, i) => <NewsCardSkeleton key={i} />)
-              : filteredNews.length > 0
-                ? filteredNews.map((item) => <NewsCard key={item.id} news={item} />)
-                : (
-                  <div className="text-center py-10" style={{ color: "var(--muted-foreground)" }}>
-                    <p className="text-sm">\uD574\uB2F9 \uCE74\uD14C\uACE0\uB9AC\uC758 \uB274\uC2A4\uAC00 \uC5C6\uC2B5\uB2C8\uB2E4.</p>
-                  </div>
-                )
-            }
-          </div>
-        </div>
-      ) : (
-        <div className="px-4 mt-3 space-y-3">
-          <div className="rounded-xl px-4 py-3" style={{ background: "rgba(239,68,68,0.08)", border: "1px solid rgba(239,68,68,0.2)" }}>
-            <p className="text-xs font-semibold" style={{ color: "#ef4444" }}>
-              \u26A0\uFE0F \uD22C\uC790 \uADDC\uCE59 #15: \uBAA9\uD45C\uAC00 \uB099\uCD94\uBA74 50% \uB5A8\uC5B4\uC9C4\uB2E4 \u2192 \uBB34\uC870\uAC74 \uD310\uB2E4!
-            </p>
-          </div>
-          {TARGET_PRICE_UPDATES.map((item, idx) => (
-            <div key={idx} className="rounded-2xl p-4" style={{ background: "var(--card)", border: "1px solid var(--border)" }}>
-              <div className="flex items-center justify-between">
-                <div>
-                  <div className="flex items-center gap-2">
-                    <span className="font-bold text-base" style={{ color: "var(--foreground)" }}>{item.stock}</span>
-                    <span
-                      className="text-xs px-2 py-0.5 rounded-full font-bold"
-                      style={{
-                        background: item.direction === "up" ? "rgba(34,197,94,0.15)" : "rgba(239,68,68,0.15)",
-                        color: item.direction === "up" ? "#22c55e" : "#ef4444",
-                      }}
-                    >
-                      {item.direction === "up" ? "\u25B2 \uC0C1\uD5A5" : "\u25BC \uD558\uD5A5"}
-                    </span>
-                  </div>
-                  <p className="text-xs mt-1" style={{ color: "var(--muted-foreground)" }}>{item.analyst} \u00B7 {item.date}</p>
-                </div>
-                <div className="text-right">
-                  <p className="text-xs" style={{ color: "var(--muted-foreground)" }}>
-                    {item.before.toLocaleString()}\uC6D0
-                  </p>
-                  <p className="text-sm font-bold" style={{ color: item.direction === "up" ? "#22c55e" : "#ef4444" }}>
-                    \u2192 {item.after.toLocaleString()}\uC6D0
-                  </p>
-                  <p className="text-xs font-semibold" style={{ color: item.direction === "up" ? "#22c55e" : "#ef4444" }}>
-                    {item.direction === "up" ? "+" : ""}{(((item.after - item.before) / item.before) * 100).toFixed(1)}%
-                  </p>
-                </div>
-              </div>
-              {item.direction === "down" && (
-                <div className="mt-2 rounded-lg px-3 py-2" style={{ background: "rgba(239,68,68,0.08)" }}>
-                  <p className="text-xs" style={{ color: "#dc2626" }}>
-                    \uD83D\uDEA8 \uB9E4\uB3C4 \uC2E0\uD638: \uADDC\uCE59 #14 &amp; #15 \uC801\uC6A9 \u2192 \uCD5C\uC120 \uC804\uB7B5 \uAC80\uD1A0 \uD544\uC694
-                  </p>
-                </div>
-              )}
-            </div>
-          ))}
-        </div>
-      )}
-
-      <style>{\`
-        @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
-      \`}</style>
-    </div>
-  );
-}
-`;
-
-writeFileSync("src/lib/newsApi.ts", newsApiContent, "utf8");
-writeFileSync("src/pages/NewsPage.tsx", newsPageContent, "utf8");
-console.log("Files written with proper UTF-8 encoding.");
+import { writeFileSync } from "fs";
+writeFileSync("src/lib/claudeApi.ts", claudeApiContent, "utf8");
+console.log("claudeApi.ts written with date injection.");

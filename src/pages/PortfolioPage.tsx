@@ -22,7 +22,7 @@ export default function PortfolioPage() {
       {/* Header */}
       <div className="px-4 pt-safe pb-4" style={{ background: "linear-gradient(135deg, color-mix(in srgb, var(--primary) 20%, var(--background)) 0%, var(--background) 100%)" }}>
         <h1 className="text-2xl font-bold" style={{ color: "var(--foreground)" }}>내 포트폴리오</h1>
-        <p className="text-xs mt-0.5" style={{ color: "var(--muted-foreground)" }}>토스증권 기준 · 2026.05.29</p>
+        <p className="text-xs mt-0.5" style={{ color: "var(--muted-foreground)" }}>토스증권 기준 · 2026.05.30</p>
       </div>
 
       <div className="px-4 space-y-4">

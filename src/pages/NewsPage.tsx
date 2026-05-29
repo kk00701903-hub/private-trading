@@ -35,7 +35,7 @@ export default function NewsPage() {
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-2xl font-bold" style={{ color: "var(--foreground)" }}>시장 뉴스</h1>
-            <p className="text-xs mt-0.5" style={{ color: "var(--muted-foreground)" }}>2026.05.29 · 실시간 업데이트</p>
+            <p className="text-xs mt-0.5" style={{ color: "var(--muted-foreground)" }}>2026.05.30 · 실시간 업데이트</p>
           </div>
           <button className="p-2 rounded-xl" style={{ background: "var(--muted)" }}>
             <RefreshCw size={16} style={{ color: "var(--muted-foreground)" }} />

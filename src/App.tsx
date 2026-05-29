@@ -1,10 +1,20 @@
 import { useState } from "react";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import BottomNav from "@/components/BottomNav";
 import AnalyzePage from "@/pages/AnalyzePage";
 import PortfolioPage from "@/pages/PortfolioPage";
 import NewsPage from "@/pages/NewsPage";
 import RulesPage from "@/pages/RulesPage";
 import SettingsPage from "@/pages/SettingsPage";
+
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 5 * 60 * 1000,
+      retry: 1,
+    },
+  },
+});
 
 export default function App() {
   const [activeTab, setActiveTab] = useState("analyze");
@@ -21,21 +31,23 @@ export default function App() {
   };
 
   return (
-    <div
-      className="relative w-full"
-      style={{
-        background: "var(--background)",
-        fontFamily: "'Noto Sans KR', sans-serif",
-        minHeight: "100dvh",
-      }}
-    >
+    <QueryClientProvider client={queryClient}>
       <div
-        className="overflow-y-auto"
-        style={{ minHeight: "100dvh", paddingBottom: "calc(4rem + env(safe-area-inset-bottom))" }}
+        className="relative w-full"
+        style={{
+          background: "var(--background)",
+          fontFamily: "'Noto Sans KR', sans-serif",
+          minHeight: "100dvh",
+        }}
       >
-        {renderPage()}
+        <div
+          className="overflow-y-auto"
+          style={{ minHeight: "100dvh", paddingBottom: "calc(4rem + env(safe-area-inset-bottom))" }}
+        >
+          {renderPage()}
+        </div>
+        <BottomNav activeTab={activeTab} onTabChange={setActiveTab} />
       </div>
-      <BottomNav activeTab={activeTab} onTabChange={setActiveTab} />
-    </div>
+    </QueryClientProvider>
   );
 }
